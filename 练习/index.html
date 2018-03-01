@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<h1>商品添加</h1>
+	<form id="frm" action="/api/add_goods" method="post" enctype="multipart/form-data">
+		商品名：<input type="text" name="goods_name"><br>
+		价格：<input type="text" name="price"><br>
+		图片：<input type="file" name="img"><br>
+		详情：<textarea name="detail"></textarea><br>
+		<button onclick="addGoods()">添加商品</button>
+	</form>
+</body>
+</html>
+<script type="text/javascript">
+	function addGoods(){
+		document.getElementById("frm").submit();
+	}
+	var multiparty=require("multiparty");
+	var GoodsModel=require("GoodsModel")
+	router.post("/api/add_goods",function(req,res){
+       var form = new multiparty.Form({
+       	 uploadDir:"./public/imgs"
+       });
+       form.parse(req, function(err, body, files) {
+        var goods_name = body.goods_name[0];
+		var price = body.price[0];
+		var detail = body.detail[0];
+		var imgName = files.img[0].path;
+        imgName = imgName.substr(imgName.lastIndexOf("\\") + 1);
+        var gm=new GoodsModel();
+        gm.goods_name=goods_name;
+        gm.price=price;
+        gm.detail = detail;
+		gm.img = imgName;
+		gm.save(function(err){
+			if(!err) {
+				res.send("商品保存成功");
+			} else {
+				res.send("商品保存失败");
+			}
+		})
+	})
+  })
+</script>
